@@ -1,0 +1,34 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${social.client-id}
+            client-secret: ${social.client-secret}
+            scope:
+              - profile_nickname
+              - account_email
+              - name
+              - gender
+              - birthday
+              - birthyear
+              - phone_number
+            redirect-uri: ${social.redirect-uri}
+            client-name: ${social.client-name}
+            authorization-grant-type: ${social.authorization-grant-type}
+            client-authentication-method: ${social.client-authentication-method}
+
+          google:
+            client-id: ${google.client-id}
+            client-secret: ${google.client-secret}
+            scope:
+              - profile
+              - email
+            redirect-uri: ${google.redirect-uri}
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
