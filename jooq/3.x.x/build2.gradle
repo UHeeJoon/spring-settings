@@ -1,0 +1,56 @@
+plugins {
+    id "org.jooq.jooq-codegen-gradle" version "3.19.8"
+}
+
+ext {
+    jooqVersion = '3.19.8'
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    implementation "org.jooq:jooq:${jooqVersion}"
+    jooqCodegen 'com.mysql:mysql-connector-j'
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+}
+
+jooq {
+    configuration {
+        if (System.getProperty('spring.profiles.active') == 'dbtest') {
+            jdbc {
+                driver = "com.mysql.cj.jdbc.Driver"
+                url = 'jdbc:mysql://localhost:3306/' + tasks.testDbSetup.output()
+                user = System.getenv('TEST_TRX_BATCH_DB_USER')
+                password = System.getenv('TEST_TRX_BATCH_DB_PASS')
+            }
+        } else {
+            jdbc {
+                driver = "com.mysql.cj.jdbc.Driver"
+                url = 'jdbc:mysql://localhost:3306/trxbatch'
+                user = System.getenv('TRX_BATCH_DB_USER')
+                password = System.getenv('TRX_BATCH_DB_PASS')
+            }
+        }
+
+        generator {
+            database {
+                name = "org.jooq.meta.mysql.MySQLDatabase"
+                if (System.getProperty('spring.profiles.active') == 'dbtest') {
+                    inputSchema = tasks.testDbSetup.output()
+                } else {
+                    inputSchema = "trxbatch"
+                }
+                includes = ".*"
+                excludes = "BATCH_.*"
+            }
+
+            target {
+                packageName = "com.pitachips.trxbatch.generated"
+                directory = "src/main/java"
+            }
+        }
+
+    }
+}
